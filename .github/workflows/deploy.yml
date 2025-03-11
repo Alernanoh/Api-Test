@@ -18,9 +18,9 @@ jobs:
                credentials_json: '${{secrets.GCP_PROJECT_ID}}'
                   
             - id: delete-existing
-              name: 'ELiminando servicio existente'
+              name: 'Eliminando servicio existente'
               run: |
-                gcloud run services delete api --region=us-central1 --quiet || true
+                    gcloud run services delete api --region=us-central1 --quiet || true
 
             - id: deploy
               name: 'Desplegando en GCP'
