@@ -52,7 +52,7 @@ jobs:
       - name: Autenticación en Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}  # Asegúrate de que este secreto contenga el JSON de las credenciales de servicio
+          credentials_json: ${{ secrets.GCP_PROJECT_ID}}  # Asegúrate de que este secreto contenga el JSON de las credenciales de servicio
 
       # Paso 3: Configurar el proyecto de GCP
       - name: Configurar proyecto de GCP
