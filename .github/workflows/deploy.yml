@@ -12,21 +12,21 @@ jobs:
             - uses: actions/checkout@v4
 
             - id: auth
-                name: 'Autenticador en Google Cloud'
-                uses: 'google-github-actions/auth@v2'
-                with:
-                   credentials_json: '${{secrets.GCP_PROJECT_ID}}'
+              name: 'Autenticador en Google Cloud'
+              uses: 'google-github-actions/auth@v2'
+              with:
+               credentials_json: '${{secrets.GCP_PROJECT_ID}}'
                   
             - id: delete-existing
-                name: 'ELiminando servicio existente'
-                run: |
-                    gcloud run services delete api --region=us-central1 --quiet || true
+              name: 'ELiminando servicio existente'
+              run: |
+                gcloud run services delete api --region=us-central1 --quiet || true
 
             - id: deploy
-                name: 'Desplegando en GCP'
-                uses: 'google-github-actions/deploy-cloud-functions@v3'
-                timeout-minutes: 10
-                with:
-                   name: "api"
-                   runtime: "python311"
-                   entry_point: "hello_http"
+              name: 'Desplegando en GCP'
+              uses: 'google-github-actions/deploy-cloud-functions@v3'
+              timeout-minutes: 10
+              with:
+                  name: "api"
+                  runtime: "python311"
+                  entry_point: "hello_http"
