@@ -1,32 +1,76 @@
+# name: Desplegar en GCP
+#
+# on:
+#   push:
+#       branches:
+#             - "*"
+#
+# jobs:
+#     job_id:
+#         runs-on: ubuntu-latest
+#         steps:
+#             - uses: actions/checkout@v4
+#
+#             - id: auth
+#               name: 'Autenticador en Google Cloud'
+#               uses: 'google-github-actions/auth@v2'
+#               with:
+#                credentials_json: '${{secrets.GCP_PROJECT_ID}}'
+#
+#             - id: delete-existing
+#               name: 'Eliminando servicio existente'
+#               run: |
+#                     gcloud run services delete api --region=us-central1 --quiet || true
+#
+#             - id: deploy
+#               name: 'Desplegando en GCP'
+#               uses: 'google-github-actions/deploy-cloud-functions@v3'
+#               timeout-minutes: 10
+#               with:
+#                   name: "api"
+#                   runtime: "python311"
+#                   entry_point: "hello_http"
+#
+#
+#
 name: Desplegar en GCP
 
 on:
   push:
-      branches:
-            - "*"
+    branches:
+      - main  # Cambia esto a la rama que deseas usar
 
 jobs:
-    job_id:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Paso 1: Checkout del repositorio
+      - name: Checkout del código
+        uses: actions/checkout@v4
 
-            - id: auth
-              name: 'Autenticador en Google Cloud'
-              uses: 'google-github-actions/auth@v2'
-              with:
-               credentials_json: '${{secrets.GCP_PROJECT_ID}}'
-                  
-            - id: delete-existing
-              name: 'Eliminando servicio existente'
-              run: |
-                    gcloud run services delete api --region=us-central1 --quiet || true
+      # Paso 2: Autenticación en Google Cloud
+      - name: Autenticación en Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}  # Asegúrate de que este secreto contenga el JSON de las credenciales de servicio
 
-            - id: deploy
-              name: 'Desplegando en GCP'
-              uses: 'google-github-actions/deploy-cloud-functions@v3'
-              timeout-minutes: 10
-              with:
-                  name: "api"
-                  runtime: "python311"
-                  entry_point: "hello_http"
+      # Paso 3: Configurar el proyecto de GCP
+      - name: Configurar proyecto de GCP
+        run: |
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+
+      # Paso 4: Eliminar el servicio existente (opcional)
+      - name: Eliminar servicio existente
+        run: |
+          gcloud run services delete api --region=us-central1 --quiet || true
+
+      # Paso 5: Desplegar en Cloud Run
+      - name: Desplegar en Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2  # Usa la acción correcta para Cloud Run
+        with:
+          service: api  # Nombre del servicio
+          region: us-central1  # Región de GCP
+          source: .  # Ruta al código fuente
+          image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/api:latest  # Nombre de la imagen en Container Registry
+          platform: managed  # Plataforma de ejecución
+          env_vars: "KEY=VALUE"  # Variables de entorno (opcional)
